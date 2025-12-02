@@ -6,6 +6,9 @@
             <span class="badge badge-success badge-lg">Online</span>
         </div>
 
+        <!-- Notification Container -->
+        <div id="notification-container" class="mb-3"></div>
+
         <!-- Status Robot Card -->
         <div class="row mb-4">
             <div class="col-lg-6">
@@ -36,7 +39,7 @@
                                 </div>
                             </div>
                         </div>
-                        <small class="text-muted mt-2 d-block">Estimasi: 3 jam 45 menit</small>
+                        <small class="text-muted mt-2 d-block" id="batteryEstimate">Estimasi: 3 jam 45 menit</small>
                     </div>
                 </div>
             </div>
@@ -113,129 +116,106 @@
             </div>
         </div>
 
-        <!-- Statistics Section -->
-        {{-- <div class="row">
-            <div class="col-md-3 mb-4">
-                <div class="card border-left-success shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="text-success font-weight-bold text-uppercase mb-1">
-                            Area Bersih
-                        </div>
-                        <div class="h3 mb-0">45 m²</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="text-warning font-weight-bold text-uppercase mb-1">
-                            Waktu Berjalan
-                        </div>
-                        <div class="h3 mb-0">2h 15m</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="text-info font-weight-bold text-uppercase mb-1">
-                            Total Siklus
-                        </div>
-                        <div class="h3 mb-0">24</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-left-danger shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="text-danger font-weight-bold text-uppercase mb-1">
-                            Error Log
-                        </div>
-                        <div class="h3 mb-0">0</div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
-
     </div>
 
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        // State Management
+        // ===== API Configuration =====
+        // Routes di web.php, jadi tidak punya /api prefix
+        const API_BASE_URL = "/v1/vacuum";
+
+        // ===== State Management =====
         let vacuumState = {
-            status: 'standby',
-            battery: 85,
+            state: 'standby',
             powerMode: 'normal',
-            isRunning: false
+            powerValue: 200,
+            batteryPercent: 85,
+            batteryVoltage: 12.5,
+            estimatedTime: '3h 45m'
         };
 
-        // Fungsi Kontrol Vacuum
-        function startVacuum() {
-            vacuumState.status = 'working';
-            vacuumState.isRunning = true;
-            updateUI();
-            updateStatusInfo('Vacuum sedang berjalan...');
-            
-            // Simulasi batasan berkurang
-            simulateBatteryDecrease();
-        }
+        // ===== UTILITY FUNCTIONS =====
 
-        function stopVacuum() {
-            vacuumState.status = 'stop';
-            vacuumState.isRunning = false;
-            updateUI();
-            updateStatusInfo('Vacuum telah dihentikan');
-        }
-
-        function returnToBase() {
-            vacuumState.status = 'returning';
-            updateUI();
-            updateStatusInfo('Vacuum kembali ke charging base...');
+        /**
+         * Show notification to user
+         */
+        function showNotification(type, message) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const alertHTML = `
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            `;
             
+            $('#notification-container').html(alertHTML);
             setTimeout(() => {
-                vacuumState.status = 'charging';
-                updateUI();
-                updateStatusInfo('Vacuum sedang charging di base');
-            }, 5000);
+                $('#notification-container').fadeOut(function() {
+                    $(this).empty().show();
+                });
+            }, 3000);
         }
 
-        // Fungsi untuk mengirim data daya hisap ke database
-        function sendPowerModeToDatabase(mode, value) {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
+        // ===== COMMAND FUNCTIONS =====
 
+        /**
+         * Send vacuum command
+         * Commands: start, stop, return_home
+         */
+        function sendVacuumCommand(command) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
             $.ajax({
-                url: "{{ route('dayahisap.store') }}", 
+                url: `${API_BASE_URL}/command`,
                 type: 'POST',
                 dataType: 'json',
-                data: {
-                    power_mode: mode,
-                    value: value
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json'
                 },
+                data: JSON.stringify({
+                    command: command
+                }),
                 success: function(response) {
-                    console.log('Data berhasil dikirim:', response);
-                    // Tampilkan notifikasi berhasil
-                    showNotification('success', 'Data daya hisap berhasil disimpan');
+                    console.log('Command sent:', response);
+                    showNotification('success', `Perintah ${command} berhasil dikirim`);
+                    // Update UI state
+                    setTimeout(fetchVacuumStatus, 500);
                 },
                 error: function(xhr, status, error) {
                     console.error('Error:', error);
+                    console.error('Status:', status);
                     console.error('Response:', xhr.responseText);
-                    showNotification('error', 'Gagal mengirim data');
+                    showNotification('error', 'Gagal mengirim perintah: ' + error);
                 }
             });
         }
 
+        /**
+         * Wrapper functions untuk tombol
+         */
+        function startVacuum() {
+            sendVacuumCommand('start');
+        }
 
-        // Update fungsi setPowerMode untuk mengirim ke database
+        function stopVacuum() {
+            sendVacuumCommand('stop');
+        }
+
+        function returnToBase() {
+            sendVacuumCommand('return_home');
+        }
+
+        // ===== POWER MODE FUNCTIONS =====
+
+        /**
+         * Set power mode (eco, normal, strong)
+         */
         function setPowerMode(mode) {
-            vacuumState.powerMode = mode;
-            updateUI();
-            
-            // Tentukan nilai berdasarkan mode
             const powerValues = {
                 'eco': 150,
                 'normal': 200,
@@ -243,59 +223,57 @@
             };
             
             const value = powerValues[mode];
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             
-            // Kirim ke database
-            sendPowerModeToDatabase(mode, value);
-            
-            const modeInfo = {
-                'eco': 'Hemat Energi - Daya rendah untuk pembersihan ringan',
-                'normal': 'Mode Standar - Keseimbangan daya dan efisiensi',
-                'strong': 'Daya Maksimal - Pembersihan intensif'
-            };
-            
-            updatePowerInfo(mode, modeInfo[mode]);
+            $.ajax({
+                url: `${API_BASE_URL}/power-mode`,
+                type: 'POST',
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({
+                    mode: mode,
+                    value: value
+                }),
+                success: function(response) {
+                    console.log('Power mode updated:', response);
+                    
+                    // Update UI state
+                    vacuumState.powerMode = mode;
+                    updatePowerModeUI(mode);
+                    
+                    const descriptions = {
+                        'eco': 'Hemat Energi - Daya rendah untuk pembersihan ringan',
+                        'normal': 'Mode Standar - Keseimbangan daya dan efisiensi',
+                        'strong': 'Daya Maksimal - Pembersihan intensif'
+                    };
+                    
+                    updatePowerInfo(mode, descriptions[mode]);
+                    showNotification('success', `Mode ${mode.toUpperCase()} diaktifkan`);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    console.error('Status:', status);
+                    console.error('Response:', xhr.responseText);
+                    showNotification('error', 'Gagal mengubah mode daya: ' + error);
+                }
+            });
         }
 
-        // Update UI
-        function updateUI() {
-            // Update Status
-            const statusMap = {
-                'standby': '<span class="badge badge-secondary">Standby</span>',
-                'working': '<span class="badge badge-success">Berjalan</span>',
-                'stop': '<span class="badge badge-danger">Berhenti</span>',
-                'returning': '<span class="badge badge-warning">Kembali ke Base</span>',
-                'charging': '<span class="badge badge-info">Charging</span>'
-            };
-            
-            document.getElementById('statusRobot').innerHTML = statusMap[vacuumState.status];
-            
-            // Update Power Mode Buttons
-            document.getElementById('ecoBtn').classList.toggle('active', vacuumState.powerMode === 'eco');
-            document.getElementById('normalBtn').classList.toggle('active', vacuumState.powerMode === 'normal');
-            document.getElementById('strongBtn').classList.toggle('active', vacuumState.powerMode === 'strong');
-            
-            // Update Battery
-            document.getElementById('batteryPercent').textContent = vacuumState.battery + '%';
-            document.getElementById('batteryBar').style.width = vacuumState.battery + '%';
-            
-            // Update Battery Color
-            const batteryBar = document.getElementById('batteryBar');
-            if (vacuumState.battery > 50) {
-                batteryBar.classList.remove('bg-warning', 'bg-danger');
-                batteryBar.classList.add('bg-success');
-            } else if (vacuumState.battery > 20) {
-                batteryBar.classList.remove('bg-success', 'bg-danger');
-                batteryBar.classList.add('bg-warning');
-            } else {
-                batteryBar.classList.remove('bg-success', 'bg-warning');
-                batteryBar.classList.add('bg-danger');
-            }
+        /**
+         * Update power mode buttons UI
+         */
+        function updatePowerModeUI(mode) {
+            document.getElementById('ecoBtn').classList.toggle('active', mode === 'eco');
+            document.getElementById('normalBtn').classList.toggle('active', mode === 'normal');
+            document.getElementById('strongBtn').classList.toggle('active', mode === 'strong');
         }
 
-        function updateStatusInfo(message) {
-            document.getElementById('statusInfo').innerHTML = '<strong>Status:</strong> ' + message;
-        }
-
+        /**
+         * Update power mode info text
+         */
         function updatePowerInfo(mode, description) {
             const modeText = {
                 'eco': 'ECO',
@@ -308,21 +286,226 @@
             `;
         }
 
-        function simulateBatteryDecrease() {
-            if (vacuumState.isRunning && vacuumState.battery > 0) {
-                const decreaseRate = vacuumState.powerMode === 'eco' ? 0.5 : 
-                                    vacuumState.powerMode === 'normal' ? 1 : 1.5;
-                
-                vacuumState.battery = Math.max(0, vacuumState.battery - decreaseRate);
-                updateUI();
-                
-                setTimeout(simulateBatteryDecrease, 1000);
+        // ===== STATUS FETCHING FUNCTIONS =====
+
+        /**
+         * Fetch vacuum status dari server
+         * GET /api/v1/vacuum/status
+         */
+        function fetchVacuumStatus() {
+            $.ajax({
+                url: `${API_BASE_URL}/status`,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        const data = response.data;
+                        updateVacuumStatusUI(data.state, data.power_mode, data.power_value);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching status:', error);
+                }
+            });
+        }
+
+        /**
+         * Fetch battery data terbaru
+         * GET /api/v1/vacuum/battery/latest
+         */
+        function fetchBatteryData() {
+            $.ajax({
+                url: `${API_BASE_URL}/battery/latest`,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        const data = response.data;
+                        updateBatteryUI(data.battery_percent, data.estimated_time);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching battery:', error);
+                }
+            });
+        }
+
+        /**
+         * Fetch battery history untuk chart
+         * GET /api/v1/vacuum/battery/history?minutes=60
+         */
+        function fetchBatteryHistory(minutes = 60) {
+            $.ajax({
+                url: `${API_BASE_URL}/battery/history?minutes=${minutes}`,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        console.log('Battery history:', response.data);
+                        // Bisa digunakan untuk membuat chart
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching history:', error);
+                }
+            });
+        }
+
+        /**
+         * Fetch full status sekaligus
+         * GET /api/v1/vacuum/full-status
+         */
+        function fetchFullStatus() {
+            $.ajax({
+                url: `${API_BASE_URL}/full-status`,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        const vacuum = response.vacuum;
+                        const battery = response.battery;
+                        
+                        // Update semua UI sekaligus
+                        updateVacuumStatusUI(vacuum.state, vacuum.power_mode, vacuum.power_value);
+                        updateBatteryUI(battery.percent, battery.estimated_time);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching full status:', error);
+                }
+            });
+        }
+
+        // ===== UI UPDATE FUNCTIONS =====
+
+        /**
+         * Update vacuum status di UI
+         */
+        function updateVacuumStatusUI(state, powerMode, powerValue) {
+            // Update status badge
+            const statusMap = {
+                'standby': '<span class="badge badge-secondary">Standby</span>',
+                'working': '<span class="badge badge-success">Berjalan</span>',
+                'stopping': '<span class="badge badge-danger">Berhenti</span>',
+                'returning': '<span class="badge badge-warning">Kembali ke Base</span>',
+                'charging': '<span class="badge badge-info">Charging</span>'
+            };
+            
+            document.getElementById('statusRobot').innerHTML = statusMap[state];
+            
+            // Update power mode UI
+            updatePowerModeUI(powerMode);
+            
+            // Update status info
+            const statusMessages = {
+                'standby': 'Siap digunakan',
+                'working': 'Vacuum sedang berjalan...',
+                'stopping': 'Vacuum telah dihentikan',
+                'returning': 'Vacuum kembali ke charging base...',
+                'charging': 'Vacuum sedang charging di base'
+            };
+            
+            document.getElementById('statusInfo').innerHTML = '<strong>Status:</strong> ' + statusMessages[state];
+        }
+
+        /**
+         * Update battery di UI
+         */
+        function updateBatteryUI(batteryPercent, estimatedTime) {
+            // Update percentage
+            document.getElementById('batteryPercent').textContent = batteryPercent + '%';
+            
+            // Update progress bar
+            const batteryBar = document.getElementById('batteryBar');
+            batteryBar.style.width = batteryPercent + '%';
+            
+            // Update bar color based on percentage
+            if (batteryPercent > 50) {
+                batteryBar.classList.remove('bg-warning', 'bg-danger');
+                batteryBar.classList.add('bg-success');
+            } else if (batteryPercent > 20) {
+                batteryBar.classList.remove('bg-success', 'bg-danger');
+                batteryBar.classList.add('bg-warning');
+            } else {
+                batteryBar.classList.remove('bg-success', 'bg-warning');
+                batteryBar.classList.add('bg-danger');
+            }
+            
+            // Update estimated time
+            if (estimatedTime) {
+                document.getElementById('batteryEstimate').textContent = 'Estimasi: ' + estimatedTime;
             }
         }
 
-        // Initialize
+        // ===== AUTO REFRESH / POLLING =====
+
+        let statusPollingInterval;
+        let batteryPollingInterval;
+
+        /**
+         * Start polling vacuum status
+         */
+        function startStatusPolling(interval = 2000) {
+            // Initial fetch
+            fetchVacuumStatus();
+            
+            // Set polling
+            statusPollingInterval = setInterval(function() {
+                fetchVacuumStatus();
+            }, interval);
+            
+            console.log('Status polling started: every ' + interval + 'ms');
+        }
+
+        /**
+         * Start polling battery data
+         */
+        function startBatteryPolling(interval = 5000) {
+            // Initial fetch
+            fetchBatteryData();
+            
+            // Set polling
+            batteryPollingInterval = setInterval(function() {
+                fetchBatteryData();
+            }, interval);
+            
+            console.log('Battery polling started: every ' + interval + 'ms');
+        }
+
+        /**
+         * Stop polling
+         */
+        function stopPolling() {
+            if (statusPollingInterval) clearInterval(statusPollingInterval);
+            if (batteryPollingInterval) clearInterval(batteryPollingInterval);
+            console.log('Polling stopped');
+        }
+
+        // ===== INITIALIZATION =====
+
+        /**
+         * Initialize pada saat page load
+         */
         document.addEventListener('DOMContentLoaded', function() {
-            updateUI();
+            console.log('=== Vacuum Control Panel Loaded ===');
+            
+            // Fetch initial data
+            fetchFullStatus();
+            
+            // Start polling
+            startStatusPolling(2000);      // Poll status setiap 2 detik
+            startBatteryPolling(5000);     // Poll battery setiap 5 detik
+            
+            console.log('Initialization complete');
+        });
+
+        // ===== CLEANUP =====
+
+        /**
+         * Stop polling saat user meninggalkan page
+         */
+        window.addEventListener('beforeunload', function() {
+            stopPolling();
         });
     </script>
 

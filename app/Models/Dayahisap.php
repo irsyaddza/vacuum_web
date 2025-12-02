@@ -12,7 +12,8 @@ class Dayahisap extends Model
     protected $table = 'dayahisap';
 
     protected $fillable = [
-        'value'
+        'value',
+        'mode'
     ];
 
     protected $casts = [
