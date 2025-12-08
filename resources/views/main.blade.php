@@ -401,8 +401,8 @@
                 'standby': 'Siap digunakan',
                 'working': 'Vacuum sedang berjalan...',
                 'stopping': 'Vacuum telah dihentikan',
-                'returning': 'Vacuum kembali ke charging base...',
-                'charging': 'Vacuum sedang charging di base'
+                'returning': 'Vacuum kembali ke home base...',
+                'charging': 'Vacuum sedang berada di home base'
             };
             
             document.getElementById('statusInfo').innerHTML = '<strong>Status:</strong> ' + statusMessages[state];

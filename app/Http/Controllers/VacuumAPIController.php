@@ -20,7 +20,7 @@ class VacuumAPIController extends Controller
             $vacuumStatus = VacuumStatus::first();
             
             if (!$vacuumStatus) {
-                // Buat default jika belum ada
+                // Atur default mode stanby
                 $vacuumStatus = VacuumStatus::create([
                     'state' => 'standby',
                     'power_mode' => 'normal',
@@ -31,7 +31,7 @@ class VacuumAPIController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'state' => $vacuumStatus->state,           // standby, working, stopping, returning, charging
+                    'state' => $vacuumStatus->state,           // standby, working, stopping, returning
                     'power_mode' => $vacuumStatus->power_mode, // eco, normal, strong
                     'power_value' => $vacuumStatus->power_value, // 150, 200, 255
                     'updated_at' => $vacuumStatus->updated_at
@@ -204,7 +204,7 @@ class VacuumAPIController extends Controller
 
     /**
      * GET /api/vacuum/battery/history
-     * Mengambil history battery (untuk graph/chart)
+     * Mengambil history battery 
      */
     public function getBatteryHistory($minutes = 60)
     {
