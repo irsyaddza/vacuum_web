@@ -10,6 +10,19 @@ void ApiClient::connectWiFi() {
     
     WiFiManager wm;
     
+    // UI Customization
+    const char* custom_css = 
+    "<style>"
+    "body { background-color: #1a1a1a; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }"
+    "h1 { color: #4e73df; font-weight: bold; text-transform: uppercase; }"
+    "button { background-color: #4e73df !important; border-radius: 25px !important; color: white !important; }"
+    "input { background-color: #2d2d2d; color: white; border: 1px solid #444; border-radius: 5px; padding: 8px; }"
+    "div { background-color: #2d2d2d; border-radius: 10px; padding: 10px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }"
+    "a { color: #17a2b8; text-decoration: none; }"
+    ".wrap { max-width: 400px; margin: 0 auto; padding: 20px; }"
+    "</style>";
+    wm.setCustomHeadElement(custom_css);
+    
     // reset settings - wipe credentials for testing
     // wm.resetSettings(); 
 
