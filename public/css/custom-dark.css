@@ -1,0 +1,167 @@
+/* Premium Dark Mode & Animations */
+
+:root {
+    --bg-dark: #0f172a;
+    --card-bg: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-primary: #0ea5e9;
+    /* Sky Blue */
+    --accent-secondary: #6366f1;
+    /* Indigo */
+    --neon-glow: 0 0 10px rgba(14, 165, 233, 0.5);
+    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--card-bg);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* Card Styling */
+.card {
+    background-color: var(--card-bg);
+    border: var(--glass-border);
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: rgba(30, 41, 59, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem 1rem 0 0 !important;
+}
+
+/* Buttons */
+.btn-primary-glow {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border: none;
+    color: white;
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-primary-glow:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 25px rgba(14, 165, 233, 0.5);
+    transform: scale(1.02);
+}
+
+.btn-danger-glow {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    /* Red-500 to Red-700 */
+    border: none;
+    color: white;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-danger-glow:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.5);
+    transform: scale(1.02);
+    color: white;
+}
+
+.btn-warning-glow {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    /* Amber-500 to Amber-600 */
+    border: none;
+    color: white;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-warning-glow:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+    transform: scale(1.02);
+    color: white;
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stagger-1 {
+    animation-delay: 0.1s;
+}
+
+.stagger-2 {
+    animation-delay: 0.2s;
+}
+
+.stagger-3 {
+    animation-delay: 0.3s;
+}
+
+/* Navbar */
+.navbar-custom {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    /* Glassmorphism */
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.navbar-brand {
+    font-weight: 800;
+    background: -webkit-linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.5rem;
+}
+
+/* Badge Updates */
+.badge-custom {
+    padding: 0.5em 1em;
+    border-radius: 50rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Progress Bar */
+.progress {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    overflow: hidden;
+}
