@@ -282,13 +282,32 @@ void ApiClient::sendBattery(int percent, float voltage) {
 }
 
 void ApiClient::_parseStatusResponse(String json) {
+    Serial.println("========== API RESPONSE DEBUG ==========");
+    Serial.print("Raw JSON: ");
+    Serial.println(json);
+    
     DynamicJsonDocument doc(512);
-    deserializeJson(doc, json);
+    DeserializationError error = deserializeJson(doc, json);
+    
+    if (error) {
+        Serial.print("JSON PARSE ERROR: ");
+        Serial.println(error.c_str());
+        return;
+    }
     
     if (doc["success"]) {
         String newState = String((const char*)doc["data"]["state"]);
         String newMode = String((const char*)doc["data"]["power_mode"]);
         int newVal = doc["data"]["power_value"];
+        
+        Serial.println("--- PARSED VALUES ---");
+        Serial.print("State: ");
+        Serial.println(newState);
+        Serial.print("Power Mode: ");
+        Serial.println(newMode);
+        Serial.print("Power Value: ");
+        Serial.println(newVal);
+        Serial.println("---");
         
         // Log changes
         if (newState != lastState) {
@@ -305,9 +324,24 @@ void ApiClient::_parseStatusResponse(String json) {
              Serial.println(newMode);
         }
         
+        if (newVal != lastPowerValue) {
+            Serial.print(">>> POWER VALUE UPDATED: ");
+            Serial.print(lastPowerValue);
+            Serial.print(" -> ");
+            Serial.println(newVal);
+        }
+        
+        // UPDATE VARIABLES
         lastState = newState;
         lastPowerMode = newMode;
         lastPowerValue = newVal;
+        
+        Serial.print("CURRENT lastPowerValue = ");
+        Serial.println(lastPowerValue);
+        Serial.println("========================================");
+    } else {
+        Serial.println("ERROR: Response success = false");
+        Serial.println("========================================");
     }
 }
 

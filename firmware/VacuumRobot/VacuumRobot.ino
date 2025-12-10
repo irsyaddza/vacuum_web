@@ -30,6 +30,13 @@ void setup() {
 
   // Initialize Logic
   robot.begin();
+  
+  Serial.println("\n=== ROBOT READY ===");
+  Serial.print("API Polling Interval: ");
+  Serial.print(API_POLL_INTERVAL / 1000);
+  Serial.println(" seconds");
+  Serial.println("Monitor this output to see state/power changes.");
+  Serial.println("===================\n");
 }
 
 void loop() {

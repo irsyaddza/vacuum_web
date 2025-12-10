@@ -15,6 +15,10 @@ private:
     void checkSafety();
     
     unsigned long _lastBatteryCheck = 0;
+    
+    // For change detection and logging
+    String _prevState = "";
+    int _prevPowerValue = 0;
 };
 
 #endif

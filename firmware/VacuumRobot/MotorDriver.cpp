@@ -13,6 +13,14 @@ void MotorDriver::stop() {
 }
 
 void MotorDriver::moveForward() {
+    Serial.println("[DRIVE] Moving FORWARD");
+    Serial.print("[DRIVE] Setting PIN_MOTOR_DIR_1 (IO");
+    Serial.print(PIN_MOTOR_DIR_1);
+    Serial.println(") = HIGH");
+    Serial.print("[DRIVE] Setting PIN_MOTOR_DIR_2 (IO");
+    Serial.print(PIN_MOTOR_DIR_2);
+    Serial.println(") = LOW");
+    
     digitalWrite(PIN_MOTOR_DIR_1, HIGH);
     digitalWrite(PIN_MOTOR_DIR_2, LOW);
 }
