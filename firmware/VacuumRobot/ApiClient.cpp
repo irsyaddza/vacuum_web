@@ -194,9 +194,10 @@ void ApiClient::connectWiFi() {
     // wm.addParameter(&custom_api_url);
 
     // Buka AP (Access Point) jika tidak connect
-    // Nama WiFi Robot: "AutonomousVacRobot"
-    // Password: "password123"
-    bool res = wm.autoConnect("AutonomousVacRobot", "password123"); 
+    // Nama dan password diambil dari config.h
+    Serial.print("Opening AP: ");
+    Serial.println(WIFI_AP_NAME);
+    bool res = wm.autoConnect(WIFI_AP_NAME, WIFI_AP_PASSWORD); 
 
     if(!res) {
         Serial.println("Failed to connect");
@@ -299,6 +300,7 @@ void ApiClient::_parseStatusResponse(String json) {
         String newState = String((const char*)doc["data"]["state"]);
         String newMode = String((const char*)doc["data"]["power_mode"]);
         int newVal = doc["data"]["power_value"];
+        String newDirection = doc["data"]["direction"] | "forward";  // Default to forward if not present
         
         Serial.println("--- PARSED VALUES ---");
         Serial.print("State: ");
@@ -307,6 +309,8 @@ void ApiClient::_parseStatusResponse(String json) {
         Serial.println(newMode);
         Serial.print("Power Value: ");
         Serial.println(newVal);
+        Serial.print("Direction: ");
+        Serial.println(newDirection);
         Serial.println("---");
         
         // Log changes
@@ -331,13 +335,23 @@ void ApiClient::_parseStatusResponse(String json) {
             Serial.println(newVal);
         }
         
+        if (newDirection != lastDirection) {
+            Serial.print(">>> DIRECTION CHANGED: ");
+            Serial.print(lastDirection);
+            Serial.print(" -> ");
+            Serial.println(newDirection);
+        }
+        
         // UPDATE VARIABLES
         lastState = newState;
         lastPowerMode = newMode;
         lastPowerValue = newVal;
+        lastDirection = newDirection;
         
         Serial.print("CURRENT lastPowerValue = ");
         Serial.println(lastPowerValue);
+        Serial.print("CURRENT lastDirection = ");
+        Serial.println(lastDirection);
         Serial.println("========================================");
     } else {
         Serial.println("ERROR: Response success = false");

@@ -19,6 +19,7 @@ public:
     String lastState = "standby";
     String lastPowerMode = "normal";
     int lastPowerValue = 200;
+    String lastDirection = "forward";  // forward, backward, left, right, stop
 
 private:
     unsigned long _lastPollTime = 0;

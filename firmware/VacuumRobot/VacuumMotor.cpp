@@ -14,13 +14,11 @@ void VacuumMotor::begin() {
     ledcAttach(PIN_VACUUM_PWM_1, PWM_FREQ, PWM_RESOLUTION);
     ledcAttach(PIN_VACUUM_PWM_2, PWM_FREQ, PWM_RESOLUTION);
     
-    Serial.println("[VACUUM] LEDC PWM initialized:");
-    Serial.print("  - Pin IO26 @ ");
-    Serial.print(PWM_FREQ);
-    Serial.println(" Hz");
-    Serial.print("  - Pin IO32 @ ");
-    Serial.print(PWM_FREQ);
-    Serial.println(" Hz");
+    Serial.println("[VACUUM] Motor Vakum initialized:");
+    Serial.print("  - Speed Pin: IO");
+    Serial.println(PIN_VACUUM_PWM_1);
+    Serial.print("  - Direction Pin: IO");
+    Serial.println(PIN_VACUUM_PWM_2);
     
     stop();
 }
