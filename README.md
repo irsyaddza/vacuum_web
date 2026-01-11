@@ -1,66 +1,202 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🤖 Autonomous Vacuum Robot
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://img.shields.io/badge/ESP32-Microcontroller-blue?style=for-the-badge&logo=espressif" alt="ESP32">
+  <img src="https://img.shields.io/badge/Laravel-Framework-red?style=for-the-badge&logo=laravel" alt="Laravel">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
 </p>
 
-## About Laravel
+<p align="center">
+  <strong>Web-controlled autonomous vacuum robot with monitoring and ESP32 integration.</strong>
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🌐 Web Dashboard
+- **Status Monitoring** — Live robot status (Standby, Cleaning, Returning, Charging)
+- **Battery Monitoring** — Battery percentage with visual progress bar
+- **Remote Control** — Start, Stop, and Return Home commands
+- **Power Mode Selection** — ECO, NORMAL, and STRONG suction modes
+- **Responsive Design** — Works on desktop and mobile devices
 
-## Learning Laravel
+### 🔧 Hardware Control
+- **Vacuum Motor** — PWM-controlled suction with 3 power levels
+- **Brush Motor** — Forward/reverse brush rotation
+- **Wheel Motors** — Differential drive (left/right wheels) for navigation
+- **Obstacle Detection** — 3x IR sensors (left, front, right)
+- **Cliff Detection** — 3x IR cliff sensors to prevent falls
+- **Battery Monitoring** — Voltage divider + ADC for battery level
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🛠️ Tech Stack
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Component | Technology |
+|-----------|------------|
+| **Backend** | Laravel 11 (PHP) |
+| **Frontend** | Blade + Bootstrap 5 + jQuery |
+| **Microcontroller** | ESP32 |
+| **Database** | MySQL |
+| **API** | RESTful JSON API |
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 📁 Project Structure
 
-### Premium Partners
+```
+vacuum_web/
+├── app/
+│   └── Http/Controllers/
+│       └── VacuumAPIController.php   # REST API endpoints
+├── firmware/
+│   └── VacuumRobot/
+│       ├── VacuumRobot.ino           # Main Arduino sketch
+│       ├── config.h                  # Pin & WiFi configuration
+│       ├── ApiClient.cpp/h           # HTTP client for Laravel API
+│       ├── RobotController.cpp/h     # Main robot logic
+│       ├── VacuumMotor.cpp/h         # Vacuum motor control
+│       ├── BrushMotor.cpp/h          # Brush motor control
+│       ├── WheelMotor.cpp/h          # Wheel motor control
+│       ├── SensorArray.cpp/h         # IR obstacle/cliff sensors
+│       └── BatteryMonitor.cpp/h      # Battery voltage monitoring
+├── resources/views/
+│   └── main.blade.php                # Dashboard view
+└── routes/
+    └── api.php                       # API routes
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+---
 
-## Contributing
+## ⚡ Quick Start
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Prerequisites
+- PHP 8.3.16+
+- Composer
+- MySQL 8.4.7
+- Node.js (for frontend assets)
+- Arduino IDE (for ESP32)
 
-## Code of Conduct
+### Installation
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/vacuum_web.git
+   cd vacuum_web
+   ```
 
-## Security Vulnerabilities
+2. **Install dependencies**
+   ```bash
+   composer install
+   npm install
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3. **Configure environment**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-## License
+4. **Setup database**
+   ```bash
+   # Edit .env with your MySQL credentials
+   php artisan migrate
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+5. **Run the server**
+   ```bash
+   php artisan serve
+   ```
+
+6. **Access the dashboard**
+   ```
+   http://localhost:8000
+   ```
+
+### ESP32 Setup
+
+1. Open `firmware/VacuumRobot/VacuumRobot.ino` in Arduino IDE
+2. Edit `config.h` to set your API URL and WiFi credentials
+3. Upload to ESP32
+4. Connect to "VacuumRobot" WiFi AP for initial setup
+
+---
+
+## 🔌 Hardware Pinout
+
+### Motor Driver 1 (L298N #1) — Brush & Vacuum
+| Function | ESP32 Pin | L298N Pin |
+|----------|-----------|-----------|
+| Brush Forward | GPIO 23 | IN1 |
+| Brush Reverse | GPIO 25 | IN2 |
+| Vacuum PWM 1 | GPIO 26 | IN3 |
+| Vacuum PWM 2 | GPIO 32 | IN4 |
+
+### Motor Driver 2 (L298N #2) — Wheels
+| Function | ESP32 Pin | L298N Pin |
+|----------|-----------|-----------|
+| Left Wheel FWD | GPIO 12 | IN1 |
+| Left Wheel REV | GPIO 13 | IN2 |
+| Right Wheel FWD | GPIO 14 | IN3 |
+| Right Wheel REV | GPIO 15 | IN4 |
+
+### Sensors
+| Sensor | ESP32 Pin |
+|--------|-----------|
+| IR Left | GPIO 16 |
+| IR Front | GPIO 17 |
+| IR Right | GPIO 18 |
+| Cliff Left | GPIO 19 |
+| Cliff Front | GPIO 21 |
+| Cliff Right | GPIO 22 |
+| Battery ADC | GPIO 36 (VP) |
+| WiFi Reset | GPIO 0 (BOOT) |
+
+---
+
+## 📡 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/v1/vacuum/status` | Get robot status |
+| POST | `/v1/vacuum/command` | Send command (start/stop/return_home) |
+| POST | `/v1/vacuum/power-mode` | Set suction power mode |
+| GET | `/v1/vacuum/battery/latest` | Get latest battery data |
+| GET | `/v1/vacuum/full-status` | Get complete robot status |
+
+---
+
+## 🎮 Suction Power Modes
+
+| Mode | PWM Value | Description |
+|------|-----------|-------------|
+| **ECO** | 150 | Energy saving, quiet operation |
+| **NORMAL** | 200 | Standard suction power |
+| **STRONG** | 255 | Maximum power for deep cleaning |
+
+---
+
+## 📄 License
+
+MIT License
+
+Copyright (c) 2026 Autonomous Vacuum Robot
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
